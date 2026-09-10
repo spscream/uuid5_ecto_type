@@ -24,6 +24,14 @@ defmodule UUID5Test do
       assert {:ok, uuid} == UUID5.cast(uuid)
     end
 
+    test "refuses a value with the shape of a uuid and no hexadecimal in it" do
+      assert :error == UUID5.cast(@shaped)
+    end
+
+    test "refuses a value with one character out of range" do
+      assert :error == UUID5.cast("6ba7b810-9dad-11d1-80b4-00c04fd430cg")
+    end
+
     test "refuses a value of the wrong length" do
       assert :error == UUID5.cast("6ba7b810-9dad-11d1-80b4")
     end
@@ -31,6 +39,16 @@ defmodule UUID5Test do
     test "refuses a term that is not a binary" do
       assert :error == UUID5.cast(nil)
       assert :error == UUID5.cast(42)
+    end
+
+    test "accepts only what dump/1 can dump" do
+      # The two are one contract: Ecto casts a value and then dumps it, so a
+      # value cast/1 accepts and dump/1 cannot convert reaches the database
+      # layer as an error nobody expects there.
+      for value <- [@uuid, String.upcase(@uuid), @shaped, "", "not a uuid"] do
+        assert (UUID5.cast(value) != :error) == (UUID5.dump(value) != :error),
+               "cast/1 and dump/1 disagree about #{inspect(value)}"
+      end
     end
   end
 
