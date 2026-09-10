@@ -3,6 +3,8 @@ defmodule UUID5Test do
 
   doctest UUID5
 
+  # Hyphens in the right places, not one hexadecimal character.
+  @shaped "zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz"
   @uuid "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 
   describe "cast/1" do
@@ -36,6 +38,15 @@ defmodule UUID5Test do
     test "converts a uuid to sixteen bytes" do
       assert {:ok, binary} = UUID5.dump(@uuid)
       assert byte_size(binary) == 16
+    end
+
+    test "answers :error for a value it cannot convert, rather than raising" do
+      assert :error == UUID5.dump(@shaped)
+    end
+
+    test "answers :error for a term that is not a uuid string" do
+      assert :error == UUID5.dump("")
+      assert :error == UUID5.dump(nil)
     end
   end
 

@@ -24,14 +24,9 @@ defmodule UUID5 do
   Converts a string representing a UUID into a binary.
   """
   def dump(uuid) do
-    try do
-      UUID.string_to_binary!(uuid)
-    catch
-      :error -> :error
-    else
-      binary ->
-        {:ok, binary}
-    end
+    {:ok, UUID.string_to_binary!(uuid)}
+  rescue
+    ArgumentError -> :error
   end
 
   @doc """
